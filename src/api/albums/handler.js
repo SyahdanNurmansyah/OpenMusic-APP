@@ -1,8 +1,10 @@
 const autoBind = require("auto-bind");
 
 class AlbumsHandler {
-    constructor (albumsService, albumsValidator) {
+    constructor (albumsService, songsService, albumsValidator) {
+        
         this._albumService = albumsService;
+        this._songService = songsService
         this._albumValidator = albumsValidator;
 
         autoBind(this);
@@ -30,21 +32,23 @@ class AlbumsHandler {
     async getAlbumsHandler () {
 
         const albums = await this._albumService.getAlbums();
+
         return {
             status: 'success',
             data: {
                 albums,
-            },
-        };
+            }
+        }
     };
 
     async getAlbumByIdHandler (request) {
 
         const { id } = request.params;
         const album = await this._albumService.getAlbumById(id);
+        album.songs = await this._songService.getSongs({ albumId: id });
 
         return {
-            status:'success',
+            status: 'success',
             data: {
                 album,
             },
@@ -64,7 +68,7 @@ class AlbumsHandler {
     }
 
     async deleteAlbumByIdHandler (request) {
-        
+
         const { id } = request.params;
         await this._albumService.deleteAlbumById(id);
 

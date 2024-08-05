@@ -2,6 +2,7 @@ const autoBind = require("auto-bind");
 
 class SongsHandler {
     constructor (songsService, songsValidator) {
+        
         this._songService = songsService;
         this._songValidator = songsValidator;
 
@@ -43,7 +44,8 @@ class SongsHandler {
 
     async getSongsHandler (request) {
 
-        const songs = await this._songService.getSongs();
+        const { title, performer } = request.query
+        const songs = await this._songService.getSongs({ title, performer });
 
         return {
             status: 'success',

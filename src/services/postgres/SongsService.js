@@ -12,7 +12,7 @@ class SongsService {
   
     async addSong ({ title, year, genre, performer, duration, albumId }) {
         
-        const id = `songs-${nanoid(16)}`;
+        const id = `Song-${nanoid(16)}`;
         const query = {
         text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id',
         values: [id, title, year, genre, performer, duration, albumId],
@@ -27,16 +27,18 @@ class SongsService {
         return result.rows[0].id;
     };
   
-    async getSongs () {
+    async getSongs ({ title, performer, albumId}) {
 
-        const result = await this._pool.query('SELECT * FROM songs')
-        const mapSongs = (song) => song.map((song) => ({
-            id: song.id,
-            title: song.title,
-            performer: song.performer
-        }));
+        const titleQuery = title ? `%${title}%`: null;
+        const performerQuery = performer ? `%${performer}%`: null;
+        const query = {
+            text: 'SELECT id, title, performer FROM songs WHERE ($1::VARCHAR(50) is null or title ILIKE $1::VARCHAR(50)) and ($2::VARCHAR(50) is null or performer ILIKE $2::VARCHAR(50)) and ($3::VARCHAR(50) is null or album_id = $3::VARCHAR(50))',
+            values: [titleQuery, performerQuery, albumId],
+        };
 
-        return mapSongs(result.rows.map(mapDBSongsToModel));     
+        const result = await this._pool.query(query);
+
+        return result.rows.map(mapDBSongsToModel)
     };
       
     async getSongById (id) {
@@ -52,7 +54,7 @@ class SongsService {
             throw new NotFoundError ('Lagu tidak ditemukan')
         };
 
-        return result.rows.map(mapDBSongsToModel)[0];
+        return mapDBSongsToModel(result.rows[0]);
     };
   
     async editSongById (id, { title, year, genre, performer, duration, albumId }) {

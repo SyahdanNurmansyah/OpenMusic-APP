@@ -42,8 +42,9 @@ exports.up = (pgm) => {
 
         album_id: {
             type: 'VARCHAR(50)',
-            // references: '"albums"',
-            // onDelete: 'SET NULL',
+            notNull: false,
+            references: '"albums"',
+            onDelete: 'SET NULL',
         }
     });
 
