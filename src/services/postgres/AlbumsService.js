@@ -46,7 +46,7 @@ class AlbumsService {
             throw new NotFoundError('Album tidak ditemukan')
         };
 
-        return { ...result.rows[0] };
+        return result.rows[0];
     };
 
     async editAlbumById (id, { name, year }) {
@@ -58,7 +58,7 @@ class AlbumsService {
 
         const result = await this._pool.query(query);
 
-        if (!result.rows.length) {
+        if (!result.rowCount) {
             throw new NotFoundError('Album gagal diperbarui. Id tidak ditemukan');
         };
     };
