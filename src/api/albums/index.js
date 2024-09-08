@@ -5,8 +5,8 @@ module.exports = {
 
     name: 'albums',
     version: '1.0.0',
-    register: async (server, { albumsService, songsService, albumsValidator }) => {
-        const albumsHandler = new AlbumsHandler(albumsService, songsService, albumsValidator);
+    register: async (server, { service, songsService, validator }) => {
+        const albumsHandler = new AlbumsHandler(service, songsService, validator);
 
         server.route(routes(albumsHandler));
     },
