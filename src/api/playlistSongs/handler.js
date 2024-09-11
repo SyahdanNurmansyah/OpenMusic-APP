@@ -40,6 +40,8 @@ class PlaylistSongsHandler {
 
         const { id: credentialId } = request.auth.credentials;
         const { id: playlistId } = request.params;
+
+        console.log(playlistId)
     
         await this._playlistService.verifyPlaylistOwner( playlistId, credentialId);
 
@@ -52,13 +54,14 @@ class PlaylistSongsHandler {
              },
         });
 
+        console.log(playlist);
         response.code(200);
         return response;
     };
 
     async deletePlaylistSongsIdHandler (request) {
 
-        await this._validator.validatePlaylistSongsPayload(request.payload);
+        this._validator.validatePlaylistSongsPayload(request.payload);
 
         const { id: credentialId } = request.auth.credentials;
         const { id: playlistId } = request.params;
