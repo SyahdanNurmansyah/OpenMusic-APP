@@ -44,7 +44,7 @@ class PlaylistSongsService {
         const playlist = playlistQueryResult.rows[0];
 
         const songsQuery = {
-            text: 'SELECT songs.id, songs.title, songs.performer FROM playlists JOIN playlist_songs ON playlist_songs.playlist_id = playlists.id JOIN songs ON songs.id = playlist_songs.song_id WHERE playlists.id = $1',
+            text: 'SELECT songs.id, songs.title, songs.performer FROM playlist_songs JOIN songs ON songs.id = playlist_songs.song_id WHERE playlist_id = $1',
             values: [playlistId]
         };
 
