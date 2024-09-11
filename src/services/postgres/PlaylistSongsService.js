@@ -26,7 +26,7 @@ class PlaylistSongsService {
         };
 
         return result.rows[0].id;
-    }
+    };
 
     async getSongsByPlaylistId( playlistId ) {
 
@@ -73,8 +73,10 @@ class PlaylistSongsService {
         const result = await this._pool.query(query);
         
         if (!result.rows.length) {
-            throw new NotFoundError('Lagu gagal dihapus dari playlist. Id tidak ditemukan')
+            throw new InvariantError('Lagu gagal dihapus dari playlist')
         };
+
+        return result.rows[0].id;
     };
 };
 
