@@ -63,6 +63,19 @@ class PlaylistSongsService {
 
         return playlistSongsResult;
     };
+
+    async deletePlaylistSongsId ( playlistId, songId ) {
+        const query = {
+            text: 'DELETE FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2 RETURNING id',
+            values: [playlistId, songId]
+        };
+
+        const result = await this._pool.query(query);
+        
+        if (!result.rows.length) {
+            throw new NotFoundError('Lagu gagal dihapus dari playlist. Id tidak ditemukan')
+        };
+    };
 };
 
 module.exports = PlaylistSongsService;
