@@ -9,7 +9,7 @@ class PlaylistSongsService {
         this._pool = new Pool();
     }
 
-    async addSongToPlaylist ( playlistId, songId ) {
+    async addSongIntoPlaylist ( playlistId, songId ) {
 
         const id = `SongToPlaylist-${nanoid(16)}`;
         const query = {
@@ -17,11 +17,9 @@ class PlaylistSongsService {
             values: [id, playlistId, songId],
         };
         
-        console.log(id);
-
         const result = await this._pool.query(query);
 
-        if (!result.rowCount) {
+        if (!result.rows.length) {
             throw new InvariantError ('Gagal menambahkan lagu ke dalam playlist')
         };
 
@@ -64,7 +62,7 @@ class PlaylistSongsService {
         return playlistSongsResult;
     };
 
-    async deletePlaylistSongsId ( playlistId, songId ) {
+    async deleteSongInPlaylistById ( playlistId, songId ) {
         const query = {
             text: 'DELETE FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2 RETURNING id',
             values: [playlistId, songId]
@@ -75,8 +73,6 @@ class PlaylistSongsService {
         if (!result.rows.length) {
             throw new InvariantError('Lagu gagal dihapus dari playlist')
         };
-
-        return result.rows[0].id;
     };
 };
 
