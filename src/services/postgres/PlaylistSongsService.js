@@ -29,7 +29,9 @@ class PlaylistSongsService {
     async getSongsByPlaylistId( playlistId ) {
 
         const playlistQuery = {
-            text: `SELECT playlists.*, users.username FROM playlists LEFT JOIN users ON users.id = playlists.owner WHERE playlists.id = $1`,
+            text: `SELECT playlists.*, users.username FROM playlists
+            LEFT JOIN users ON users.id = playlists.owner
+            WHERE playlists.id = $1`,
             values: [playlistId]
         };
 
@@ -42,7 +44,9 @@ class PlaylistSongsService {
         const playlist = playlistQueryResult.rows[0];
 
         const songsQuery = {
-            text: 'SELECT songs.id, songs.title, songs.performer FROM playlist_songs JOIN songs ON songs.id = playlist_songs.song_id WHERE playlist_id = $1',
+            text: `SELECT songs.id, songs.title, songs.performer FROM playlist_songs
+            LEFT JOIN songs ON songs.id = playlist_songs.song_id
+            WHERE playlist_id = $1`,
             values: [playlistId]
         };
 
@@ -74,6 +78,31 @@ class PlaylistSongsService {
             throw new InvariantError('Lagu gagal dihapus dari playlist')
         };
     };
+
+    async addPlaylistSongActivities ({
+        playlistId,
+        songId,
+        credentialId,
+        action,
+        time,
+    })
+    {
+        const id = `PlaylisSongActivitiesId-${nanoid(16)}`;
+        const query = {
+            text: 'INSERT INTO playlist_activities VALUES($1, $2, $3, $4, $5, $6) RETURNING id',
+            values: [id, playlistId, songId, credentialId, action, time]
+        }
+
+        console.log(id);
+        
+        const result = await this._pool.query(query);
+
+        if (!result.rows[0].id) {
+            throw new InvariantError('Gagal membuat riwayat aktivitas')
+        }
+
+        return result.rows[0].id;
+    }
 };
 
 module.exports = PlaylistSongsService;
