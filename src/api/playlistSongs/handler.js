@@ -32,6 +32,16 @@ class PlaylistSongsHandler {
         await this._songsService.getSongById( songId );
         await this._service.addSongIntoPlaylist( playlistId, songId );
 
+        const time = new Date().toISOString();
+
+        await this._service.addPlaylistSongActivities({
+            playlistId,
+            songId,
+            credentialId,
+            action: 'add',
+            time
+        });
+
         const response = h.response ({
             status: 'success',
             message: 'Lagu berhasil ditambah ke playlist',
@@ -50,7 +60,7 @@ class PlaylistSongsHandler {
     
         await this._playlistsService.verifyPlaylistAccess( playlistId, credentialId);
 
-        const playlist = await this._service.getSongsByPlaylistId( playlistId );
+        const playlist = await this._service.getSongsByPlaylistId( playlistId, credentialId );
 
         const response = h.response ({
             status: 'success',
@@ -74,6 +84,16 @@ class PlaylistSongsHandler {
 
         await this._playlistsService.verifyPlaylistAccess( playlistId, credentialId );
         await this._service.deleteSongInPlaylistById( playlistId, songId );
+
+        const time = new Date().toISOString();
+
+        await this._service.addPlaylistSongActivities({
+            playlistId,
+            songId,
+            credentialId,
+            action: 'delete',
+            time
+        });
 
         return {
             status: 'success',
