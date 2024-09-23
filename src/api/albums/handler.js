@@ -1,4 +1,4 @@
-const autoBind = require("auto-bind");
+const autoBind = require('auto-bind');
 
 class AlbumsHandler {
     constructor (service, songsService, validator) {
@@ -27,7 +27,7 @@ class AlbumsHandler {
 
         response.code(201);
         return response;
-    }
+    };
 
     async getAlbumsHandler () {
 
@@ -65,7 +65,7 @@ class AlbumsHandler {
             status: 'success',
             message: 'Album berhasil diperbarui',
         };
-    }
+    };
 
     async deleteAlbumByIdHandler (request) {
 
@@ -76,8 +76,53 @@ class AlbumsHandler {
             status: 'success',
             message: 'Album berhasil dihapus',
         };
-    }
+    };
+
+    async postAlbumLikeHandler (request, h) {
+
+        const { id: albumId } = request.params;
+        const { id: userId } = request.auth.credentials;
+
+        await this._service.getAlbumById(albumId);
+        await this._service.addAlbumLikeById(albumId, userId);
+
+        const response = h.response({
+            status: 'success',
+            message: 'Album berhasil disukai',
+        });
+
+        response.code(201);
+        return response;
+    };
+
+    async getLikedAlbumsHamdler (request, h) {
+
+        const { id: albumId } = request.params;
+        const { source, likeCounts: likes } = await this._service.getAlbumLikesById(albumId);
+
+        const response = h.response({
+            status: 'success',
+            data: {  
+                likes,
+            },
+        });
+
+        response.header('X-Data-Source', source);
+        response.code(200);
+        return response;
+    };
     
-}
+    async deleteLikeonAlbumHandler (request) {
+
+        const { id: userId  } = request.auth.credentials;
+        const { id: albumId } = request.params;
+
+        await this._service.deleteLikeonAlbum(albumId, userId);
+        return {
+            status: 'success',
+            message: 'Album berhasil batal disukai',
+        };
+    };
+};
 
 module.exports = AlbumsHandler;

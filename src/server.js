@@ -3,6 +3,8 @@ require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
 const ClientError = require('./exceptions/ClientError');
+const path = require('path');
+const Inert = require('@hapi/inert');
 
 // Albums
 const albums = require('./api/albums');
@@ -45,20 +47,32 @@ const playlistSongActivities = require('./api/playlistSongActivities');
 const PlaylistSongsActivitiesService = require('../src/services/postgres/PlaylistSongActivitiesService');
 const PlaylistSongActivitiesValidator = require('../src/validators/PlaylistSongActivities');
 
+// Exports
+const exportSongs = require('./api/exports');
+const ProducerService = require('./services/rabbitmq/ProducerService');
+const ExportsValidator = require('./validators/exports');
 
+// Upload
+const uploadCover = require('./api/uploads');
+const StorageService = require('./services/storage/StorageService');
+const UploadCoverAlbumsValidator = require('./validators/uploads');
+
+// Redis
+const CacheService = require('./services/redis/CacheService');
 
 const init = async () => {
 
+    const cacheService = new CacheService()
     const collaborationsService = new CollaborationsService();
     const songsService = new SongsService();
-    const albumService = new AlbumsService();
+    const albumService = new AlbumsService(cacheService);
     const usersService = new UsersService();
     const authenticationsService = new AuthenticationsService();
     const playlistsService = new PlaylistsService(collaborationsService);
     const playlistSongsService = new PlaylistSongsService();
     const playlistSongActivitiesService = new PlaylistSongsActivitiesService();
+    const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/images'));
 
-    
     const server = Hapi.server ({
         port: process.env.PORT,
         host: process.env.HOST,
@@ -78,7 +92,10 @@ const init = async () => {
     await server.register ([
         {
             plugin: Jwt,
-        }
+        },
+        {
+            plugin: Inert,
+        },
     ]);
 
     server.auth.strategy('openmusic_jwt', 'jwt', {
@@ -161,6 +178,20 @@ const init = async () => {
                 service: playlistSongActivitiesService,
                 playlistsService,
                 validator: PlaylistSongActivitiesValidator,
+            }
+        },
+        {
+            plugin: exportSongs,
+            options: {
+                service: ProducerService,
+                validator: ExportsValidator,
+            }
+        },
+        {
+            plugin: uploadCover,
+            options: {
+                service: storageService,
+                validator: UploadCoverAlbumsValidator,
             }
         },
     ]);
