@@ -3,9 +3,10 @@ const { Pool } = require('pg');
 const InvariantError = require('../../exceptions/InvariantError');
 
 class CollaborationsService {
-    constructor () {
+    constructor (cacheService) {
 
         this._pool = new Pool();
+        this._cacheService = cacheService;
     }
 
     async addCollaboration( playlistId, userId ) {
@@ -23,6 +24,7 @@ class CollaborationsService {
             throw new InvariantError('Kolaborator gagal ditambahkan');
         };
 
+        await this._cacheService.delete(`collaborations:${userId}`);
         return result.rows[0].id;
     };
 
@@ -37,22 +39,11 @@ class CollaborationsService {
 
         if (!result.rows.length) {
             throw new InvariantError('Kolaborasi gagal dihapus');
-        }
+        };
+
+        await this._cacheService.delete(`collaborations:${userId}`);
+        return result.rows[0].id;
     };
-
-    // async verifyUser( userId ) {
-
-    //     const query = {
-    //         text: 'SELECT * FROM users WHERE id = $1',
-    //         values: [userId]
-    //     }
-
-    //     const result = await this._pool.query(query);
-        
-    //     if (!result.rows.length) {
-    //         throw new NotFoundError ('User tidak ditemukan');
-    //     }
-    // }
 
     async verifyCollaborator( playlistId, userId ) {
 

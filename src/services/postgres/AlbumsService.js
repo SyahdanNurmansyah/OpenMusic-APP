@@ -113,6 +113,8 @@ class AlbumsService {
         }
 
         await this._pool.query(addAlbumLikedQuery);
+
+        await this._cacheService.delete(`user_album_likes:${id}`);
     }
 
     async getAlbumLikesById (id) {

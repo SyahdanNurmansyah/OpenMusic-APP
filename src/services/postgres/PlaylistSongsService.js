@@ -55,7 +55,7 @@ class PlaylistSongsService {
         if (!songsQueryResult.rowCount) {
             throw new NotFoundError('Lagu tidak ditemukan');
         };
-
+        
         const songs = songsQueryResult.rows;
 
         const playlistSongsResult = {
