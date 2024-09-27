@@ -26,7 +26,6 @@ class PlaylistsService {
             throw new InvariantError('Playlist gagal ditambahkan');
         };
 
-        
         return result.rows[0].id;
     };
 
@@ -57,20 +56,6 @@ class PlaylistsService {
             throw new NotFoundError('Playlist gagal dihapus. Id tidak ditemukan');
         };
     };
-
-    async isPlaylistExist (id) {
-        
-        const query =  {
-            text: 'SELECT id FROM playlists WHERE id = $1',
-            values: [id],
-        }
-
-        const result = await this._pool.query(query);
-
-        if (!result.rows.length) {
-            throw new NotFoundError('Playlist gagal dihapus. Id tidak ditemukan');
-        };
-    }
 
     async verifyPlaylistOwner (id, owner) {
 
